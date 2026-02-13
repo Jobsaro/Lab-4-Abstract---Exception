@@ -81,7 +81,6 @@ public class AHORCADO extends JFrame {
         btnListo.addActionListener(e -> {
             String nuevaPalabra = txtNueva.getText().trim();
             if (!nuevaPalabra.isEmpty()) {
-                // Ahora usamos la instancia que apunta a la lista estática
                 admin.agregarPalabra(nuevaPalabra);
                 JOptionPane.showMessageDialog(dialogo, "Se agrego la palabra correctamente");
                 dialogo.dispose();
@@ -153,11 +152,10 @@ public class AHORCADO extends JFrame {
         btnProbar = new JButton("Probar Letra");
         btnProbar.addActionListener(e -> procesarEntrada());
         
-        // --- AGREGADO: Botón Abandonar ---
         JButton btnAbandonar = new JButton("Abandonar");
         btnAbandonar.setBackground(Color.RED);
         btnAbandonar.setForeground(Color.WHITE);
-        btnAbandonar.addActionListener(e -> mostrarMenu()); // Regresa al menú
+        btnAbandonar.addActionListener(e -> mostrarMenu()); 
         
         // usar enter
         txtEntrada.addActionListener(e -> procesarEntrada());
@@ -165,7 +163,7 @@ public class AHORCADO extends JFrame {
         panelEntrada.add(new JLabel("Letra: "));
         panelEntrada.add(txtEntrada);
         panelEntrada.add(btnProbar);
-        panelEntrada.add(btnAbandonar); // Se añade al panel
+        panelEntrada.add(btnAbandonar); 
 
         add(panelDibujo, BorderLayout.WEST);
         add(panelInfo, BorderLayout.CENTER);
