@@ -43,19 +43,18 @@ public class AHORCADO extends JFrame {
         JButton btnFijo = new JButton("Jugar - Palabra Fija");
         JButton btnAzar = new JButton("Jugar - Palabra Azar");
         
-        // --- AGREGADO: Botón Salir ---
         JButton btnSalir = new JButton("Salir");
 
         btnFijo.addActionListener(e -> iniciarJuego(new JuegoAhorcadoFijo("MELOCOTON")));
+        
         btnAzar.addActionListener(e -> iniciarJuego(new JuegoAhorcadoAzar()));
         
-        // --- AGREGADO: Acción para cerrar ---
         btnSalir.addActionListener(e -> System.exit(0));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         
-        // Para que los botones se vean del mismo tamaño
+        // Para que los botones se vean del mismo ancho
         gbc.fill = GridBagConstraints.HORIZONTAL; 
 
         gbc.gridx = 0; gbc.gridy = 0; menu.add(titulo, gbc);
@@ -203,7 +202,11 @@ public class AHORCADO extends JFrame {
         int opt = JOptionPane.showConfirmDialog(this, "Jugar otra vez?", "Fin", JOptionPane.YES_NO_OPTION);
         
         if (opt == JOptionPane.YES_OPTION) {
-            mostrarMenu();
+            if (juegoActual instanceof JuegoAhorcadoAzar) {
+                iniciarJuego(new JuegoAhorcadoAzar());
+            } else {
+                iniciarJuego(new JuegoAhorcadoFijo("MELOCOTON"));
+            }
         } else if (opt == JOptionPane.NO_OPTION) {
             mostrarMenu();
         }
