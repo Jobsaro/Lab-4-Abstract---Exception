@@ -42,30 +42,64 @@ public class AHORCADO extends JFrame {
 
         JButton btnFijo = new JButton("Jugar - Palabra Fija");
         JButton btnAzar = new JButton("Jugar - Palabra Azar");
-        
+        JButton btnAgregar = new JButton("Agregar Palabra");
         JButton btnSalir = new JButton("Salir");
 
         btnFijo.addActionListener(e -> iniciarJuego(new JuegoAhorcadoFijo("MELOCOTON")));
-        
         btnAzar.addActionListener(e -> iniciarJuego(new JuegoAhorcadoAzar()));
-        
+        btnAgregar.addActionListener(e -> abrirVentanaAgregar());
         btnSalir.addActionListener(e -> System.exit(0));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
-        
-        // Para que los botones se vean del mismo ancho
         gbc.fill = GridBagConstraints.HORIZONTAL; 
 
         gbc.gridx = 0; gbc.gridy = 0; menu.add(titulo, gbc);
         gbc.gridy = 1; menu.add(btnFijo, gbc);
         gbc.gridy = 2; menu.add(btnAzar, gbc);
-        
-        gbc.gridy = 3; menu.add(btnSalir, gbc);
+        gbc.gridy = 3; menu.add(btnAgregar, gbc);
+        gbc.gridy = 4; menu.add(btnSalir, gbc);
 
         add(menu);
         revalidate();
         repaint();
+    }
+    
+    private void abrirVentanaAgregar() {
+        JDialog dialogo = new JDialog(this, "Agregar Palabra", true);
+        dialogo.setSize(300, 150);
+        dialogo.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 20));
+        dialogo.setLocationRelativeTo(this);
+        
+        JTextField txtNueva = new JTextField(15);
+        JButton btnListo = new JButton("Listo");
+        JButton btnCancelar = new JButton("Cancelar");
+        
+        // Instancia del administrador
+        AdminPalabrasSecretas admin = new AdminPalabrasSecretas();
+        
+        btnListo.addActionListener(e -> {
+            String nuevaPalabra = txtNueva.getText().trim();
+            if (!nuevaPalabra.isEmpty()) {
+                // Ahora usamos la instancia que apunta a la lista estática
+                admin.agregarPalabra(nuevaPalabra);
+                JOptionPane.showMessageDialog(dialogo, "Se agrego la palabra correctamente");
+                dialogo.dispose();
+            } else {
+                JOptionPane.showMessageDialog(dialogo, "Escribe una palabra válida.");
+            }
+        });
+        
+        btnCancelar.addActionListener(e -> {
+            dialogo.dispose();
+        });
+        
+        dialogo.add(new JLabel("Palabra:"));
+        dialogo.add(txtNueva);
+        dialogo.add(btnListo);
+        dialogo.add(btnCancelar);
+        
+        dialogo.setVisible(true);
     }
 
     private void iniciarJuego(JuegoAhorcadoBase juego) {
@@ -78,7 +112,7 @@ public class AHORCADO extends JFrame {
         getContentPane().removeAll();
         setLayout(new BorderLayout());
 
-        // panel de dibujkol
+        // panel de dibujo
         panelDibujo = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -119,12 +153,19 @@ public class AHORCADO extends JFrame {
         btnProbar = new JButton("Probar Letra");
         btnProbar.addActionListener(e -> procesarEntrada());
         
+        // --- AGREGADO: Botón Abandonar ---
+        JButton btnAbandonar = new JButton("Abandonar");
+        btnAbandonar.setBackground(Color.RED);
+        btnAbandonar.setForeground(Color.WHITE);
+        btnAbandonar.addActionListener(e -> mostrarMenu()); // Regresa al menú
+        
         // usar enter
         txtEntrada.addActionListener(e -> procesarEntrada());
 
         panelEntrada.add(new JLabel("Letra: "));
         panelEntrada.add(txtEntrada);
         panelEntrada.add(btnProbar);
+        panelEntrada.add(btnAbandonar); // Se añade al panel
 
         add(panelDibujo, BorderLayout.WEST);
         add(panelInfo, BorderLayout.CENTER);
@@ -140,21 +181,17 @@ public class AHORCADO extends JFrame {
     private void procesarEntrada() {
         String texto = txtEntrada.getText().trim();
         
-        // Limpia el campo de texto 
         txtEntrada.setText("");
         txtEntrada.requestFocus();
 
         try {
-            // validacion
             if (texto.isEmpty()) {
                 throw new JuegoException("Debes escribir una letra.");
             }
             char letra = texto.charAt(0);
 
-            // validar reglas
             juegoActual.validarEntrada(letra);
 
-            // verifica a si acierta o no
             boolean acierto = juegoActual.verificarLetra(letra);
 
             if (acierto) {
@@ -168,7 +205,6 @@ public class AHORCADO extends JFrame {
             actualizarEstadoVisual();
 
         } catch (JuegoException ex) {
-            // captura excepecion
             lblMensaje.setText(ex.getMessage());
             lblMensaje.setForeground(Color.YELLOW);
         } catch (Exception ex) {
@@ -181,7 +217,6 @@ public class AHORCADO extends JFrame {
         lblIntentos.setText("Intentos restantes: " + juegoActual.getIntentos());
         panelDibujo.repaint();
 
-        // verifica fin de juego
         if (juegoActual.hasGanado()) {
             finalizarJuego("VICTORIA!!!!!!!");
         } else if (juegoActual.getIntentos() <= 0) {
@@ -216,13 +251,11 @@ public class AHORCADO extends JFrame {
         g.setStroke(new BasicStroke(3));
         g.setColor(Color.BLACK);
         
-        // Base
         g.drawLine(50, 400, 250, 400); 
         g.drawLine(150, 400, 150, 100); 
         g.drawLine(150, 100, 250, 100); 
         g.drawLine(250, 100, 250, 150); 
 
-        // lista de figura
         java.util.List<String> partes = juegoActual.getFiguraAhorcado();
         
         if (partes.contains("CABEZA")) g.drawOval(230, 150, 40, 40);
